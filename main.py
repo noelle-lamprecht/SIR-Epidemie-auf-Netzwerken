@@ -16,10 +16,16 @@ Parameters:
 """
 
 def main():
-    print("Hello from sir-epidemie-auf-netzwerken! help help")
+<<<<<<< HEAD
+    print("Hello from sir-epidemie-auf-netzwerken! help help blub hello")
+=======
+    print("Hello from sir-epidemie-auf-netzwerken! help help blub blau")
+>>>>>>> 64deb15c282b75a82a6369212126366a1d28366c
+
 
 
 if __name__ == "__main__":
+<<<<<<< HEAD
     main()
 
 # /// script
@@ -129,3 +135,7 @@ for k in range(1, tmax):
 
 # Plot the second simulation
 plot_sir(t, s_t2, i_t2, r_t2, "Equilibrium Conditions 2")
+=======
+
+    main() 
+>>>>>>> aac5ca2695fe0061a3475a7a789a314ee19b7dc2
