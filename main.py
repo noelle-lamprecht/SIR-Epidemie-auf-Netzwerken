@@ -12,207 +12,100 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, PillowWriter
 
 
-def generate_barabasi_albert(n, m, seed=None):
-    """Erzeuge ein Barabasi-Albert-Netzwerk als Adjazenzliste."""
-    # Prüfe die Eingabeparameter
-    if m < 1 or m >= n:
-        raise ValueError('m muss mindestens 1 und kleiner als n sein.')
+def plot_sir(t, s, i, r, title):
+    """
+    Plot the SIR model results over time.
 
-    rng = np.random.default_rng(seed)
-    adjacency = {i: set() for i in range(n)}
+    Parameters:
+    t: Time array
+    s: Susceptible population over time
+    i: Infected population over time
+    r: Recovered/removed population over time
+    title: Plot title
+    """
+    plt.figure(figsize=(10, 6))
+    plt.axhline(0, color='black', linewidth=1)  # Add horizontal line at y=0
+    plt.plot(t, s, color='blue', linewidth=2.5, label='S')      # Susceptible
+    plt.plot(t, i, color='red', linewidth=2.5, label='I')       # Infected
+    plt.plot(t, r, color='grey', linewidth=2.5, label='R')      # Recovered/Removed
+    plt.ylim(0, 1000)  # Set y-axis limits
+    plt.title(title)
+    plt.xlabel("Zeit")          # Time
+    plt.ylabel("Anzahl Personen")  # Number of people
+    plt.legend()
+    # "theme_classic" Look - hide top and right spines
+    plt.gca().spines[['top', 'right']].set_visible(False)
+    # Save plot instead of showing (for headless environments)
+    plt.savefig(f"{title.replace(' ', '_')}.png")
+    plt.close()
 
-    # Beginne mit einem vollständigen Graphen aus m+1 Knoten
-    # Diese initiale Struktur ist notwendig, damit neue Knoten später angehängt werden.
-    for u in range(m + 1):
-        for v in range(u + 1, m + 1):
-            adjacency[u].add(v)
-            adjacency[v].add(u)
+# --- Equilibrium Conditions 1 ---
+# First simulation scenario with equilibrium initial conditions
 
-    # Füge nach und nach neue Knoten hinzu
-    for new_node in range(m + 1, n):
-        # Berechne die aktuellen Knotengrade für die Preferential Attachment Wahrscheinlichkeit
-        degrees = np.array([len(adjacency[u]) for u in range(new_node)], dtype=float)
-        degree_sum = degrees.sum()
+# Model parameters
+N = 1000      # Total population
+tmax = 500    # Maximum time steps
+t = np.arange(1, tmax + 1)  # Time array from 1 to tmax
 
-        # Wähle m existierende Knoten proportional zu ihrem Grad aus
-        if degree_sum == 0:
-            targets = rng.choice(new_node, size=m, replace=False)
-        else:
-            probabilities = degrees / degree_sum
-            targets = rng.choice(new_node, size=m, replace=False, p=probabilities)
+# Epidemiological parameters
+beta = 0.3    # Infection rate (probability of infection per contact)
+gamma = 0.3   # Recovery rate (1/gamma = average recovery time)
+mu = 0.3      # Birth/death rate (natural mortality rate)
 
-        # Füge die Kanten symmetrisch ein
-        for target in targets:
-            adjacency[new_node].add(target)
-            adjacency[target].add(new_node)
+# Initial values based on equilibrium formulas
+# These formulas give initial conditions that would maintain equilibrium
+S_start = (gamma * N / beta) - 100  # Susceptible at start
+R_start = N * (1 - gamma / beta) / (1 + mu / gamma)  # Recovered at start
+I_start = N - R_start - S_start    # Infected at start (population conservation)
 
-    return adjacency
+print(f"Check Summe 1: {S_start + I_start + R_start}")  # Verify population conservation
 
+# Initialize arrays for simulation
+s_t = np.zeros(tmax); s_t[0] = S_start
+i_t = np.zeros(tmax); i_t[0] = I_start
+r_t = np.zeros(tmax); r_t[0] = R_start
 
-def simulate_sir_on_graph(adjacency, beta, gamma, initial_infected, max_steps, seed=None):
-    """Simuliere den SIR-Prozess auf einem Netzwerk."""
-    n = len(adjacency)
-    rng = np.random.default_rng(seed)
+# Main simulation loop
+for k in range(1, tmax):
+    # SIR model differential equations (discrete time approximation)
+    s_t[k] = s_t[k-1] - beta/N * s_t[k-1] * i_t[k-1] + mu * r_t[k-1]  # Susceptible change
+    i_t[k] = i_t[k-1] + beta/N * s_t[k-1] * i_t[k-1] - gamma * i_t[k-1]  # Infected change
+    r_t[k] = r_t[k-1] + gamma * i_t[k-1] - mu * r_t[k-1]  # Recovered change
 
-    # Zustände: 0 = Susceptible, 1 = Infiziert, 2 = Genesen
-    states = np.zeros(n, dtype=int)
+# Plot the first simulation
+plot_sir(t, s_t, i_t, r_t, "Equilibrium Conditions 1")
 
-    # Setze die initial infizierten Knoten
-    if isinstance(initial_infected, int):
-        initial_nodes = rng.choice(n, size=initial_infected, replace=False)
-    else:
-        initial_nodes = np.array(initial_infected, dtype=int)
+# --- Equilibrium Conditions 2 ---
+# Second simulation scenario with different parameters
 
-    states[initial_nodes] = 1
-    history = [states.copy()]
+# Different epidemiological parameters
+beta = 0.6    # Higher infection rate
+gamma = 0.1   # Lower recovery rate (longer infections)
+mu = 0.3      # Same birth/death rate
 
-    # Simuliere Zeitschritt für Zeitschritt
-    for step in range(1, max_steps):
-        new_states = states.copy()
-        infected_nodes = np.where(states == 1)[0]
+# Different initial conditions (almost all susceptible, no recovered)
+S_start = N   # All population susceptible
+R_start = 0   # No recovered initially
+I_start = N - R_start - S_start  # No infected initially (this will be 0)
 
-        # Abbruch, wenn keine Infizierten mehr vorhanden sind
-        if infected_nodes.size == 0:
-            break
+print(f"Check Summe 2: {S_start + I_start + R_start}")  # Verify population conservation
 
-        # Infizierte können ihre Nachbarn anstecken
-        for node in infected_nodes:
-            for neighbor in adjacency[node]:
-                if states[neighbor] == 0 and rng.random() < beta:
-                    new_states[neighbor] = 1
+# Initialize arrays for second simulation
+s_t2 = np.zeros(tmax); s_t2[0] = S_start
+i_t2 = np.zeros(tmax); i_t2[0] = I_start
+r_t2 = np.zeros(tmax); r_t2[0] = R_start
 
-        # Infizierte erholen sich mit Wahrscheinlichkeit gamma
-        for node in infected_nodes:
-            if rng.random() < gamma:
-                new_states[node] = 2
+# Main simulation loop for second scenario
+for k in range(1, tmax):
+    # Same SIR equations with new parameters
+    s_t2[k] = s_t2[k-1] - beta/N * s_t2[k-1] * i_t2[k-1] + mu * r_t2[k-1]
+    i_t2[k] = i_t2[k-1] + beta/N * s_t2[k-1] * i_t2[k-1] - gamma * i_t2[k-1]
+    r_t2[k] = r_t2[k-1] + gamma * i_t2[k-1] - mu * r_t2[k-1]
 
-        states = new_states
-        history.append(states.copy())
+# Plot the second simulation
+plot_sir(t, s_t2, i_t2, r_t2, "Equilibrium Conditions 2")
+=======
 
-    # Konvertiere History zu Arrays für die Auswertung
-    history = np.stack(history, axis=0)
-    s_history = np.sum(history == 0, axis=1)
-    i_history = np.sum(history == 1, axis=1)
-    r_history = np.sum(history == 2, axis=1)
-    t = np.arange(len(history))
+    main() 
+>>>>>>> aac5ca2695fe0061a3475a7a789a314ee19b7dc2
 
-    return t, history, s_history, i_history, r_history
-
-
-def plot_time_series(t, s, i, r, filename, title):
-    """Speichere ein Zeitreihen-Diagramm der SIR-Verläufe."""
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    # Linien für S, I, R zeichnen
-    ax.plot(t, s, color='blue', linewidth=2.5, label='Susceptible')
-    ax.plot(t, i, color='red', linewidth=2.5, label='Infiziert')
-    ax.plot(t, r, color='green', linewidth=2.5, label='Genesen')
-
-    ax.set_title(title)
-    ax.set_xlabel('Zeitschritt')
-    ax.set_ylabel('Anzahl Knoten')
-    ax.legend()
-    ax.grid(alpha=0.25)
-
-    # Speichere den Plot als PNG-Datei
-    fig.tight_layout()
-    fig.savefig(filename)
-    plt.close(fig)
-
-
-def animate_network(adjacency, positions, history, filename='sir_network_animation.gif', interval=200):
-    """Erstelle eine Animation des Netzwerks mit Zustandänderungen."""
-    n = len(positions)
-    fig, ax = plt.subplots(figsize=(8, 8))
-
-    # Entferne Achsenbeschriftung für die Netzwerkdarstellung
-    ax.set_xticks([])
-    ax.set_yticks([])
-    ax.set_title('SIR auf Barabasi-Albert-Netzwerk')
-
-    # Zeichne alle Kanten im Netzwerk
-    for u, neighbors in adjacency.items():
-        for v in neighbors:
-            if u < v:
-                x = [positions[u, 0], positions[v, 0]]
-                y = [positions[u, 1], positions[v, 1]]
-                ax.plot(x, y, color='gray', linewidth=0.8, alpha=0.4, zorder=1)
-
-    scatter = ax.scatter(positions[:, 0], positions[:, 1], s=80, edgecolor='black', linewidth=0.4, zorder=2)
-
-    # Farbzuordnung für die drei Zustände
-    color_map = np.array(['blue', 'red', 'green'])
-
-    def update(frame):
-        # Aktualisiere die Farbe der Knoten für jeden Zeitschritt
-        colors = color_map[history[frame]]
-        scatter.set_color(colors)
-        ax.set_title(f'SIR auf Barabasi-Albert-Netzwerk — Schritt {frame}')
-        return scatter,
-
-    animation = FuncAnimation(fig, update, frames=history.shape[0], interval=interval, blit=True)
-
-    try:
-        writer = PillowWriter(fps=int(1000 / interval))
-        animation.save(filename, writer=writer)
-        print(f'Animation gespeichert als {filename}')
-    except Exception:
-        print('Konnte .gif nicht speichern. Bitte prüfen Sie, ob Pillow installiert ist.')
-    plt.close(fig)
-
-
-def create_random_positions(n, seed=None):
-    """Generiere zufällige 2D-Positionen für die Plot-Darstellung des Netzwerks."""
-    rng = np.random.default_rng(seed)
-    return rng.uniform(-1.0, 1.0, size=(n, 2))
-
-
-def main():
-    # Netzwerkinitialisierung
-    n = 200  # Anzahl Knoten
-    m = 3    # Anzahl neuer Kanten pro hinzugefügtem Knoten
-
-    # SIR-Parameter
-    beta = 0.04   # Infektionswahrscheinlichkeit pro Kontakt
-    gamma = 0.01  # Erholungswahrscheinlichkeit pro Schritt
-    initial_infected = 5
-    max_steps = 120
-    seed = 42
-
-    print('Erzeuge Barabasi-Albert-Netzwerk...')
-    adjacency = generate_barabasi_albert(n, m, seed=seed)
-    positions = create_random_positions(n, seed=seed)
-
-    print('Simuliere SIR-Epidemie...')
-    t, history, s_history, i_history, r_history = simulate_sir_on_graph(
-        adjacency,
-        beta,
-        gamma,
-        initial_infected,
-        max_steps,
-        seed=seed,
-    )
-
-    # Ergebnisplots speichern
-    plot_time_series(
-        t,
-        s_history,
-        i_history,
-        r_history,
-        filename='sir_network_time_series.png',
-        title='SIR-Epidemie auf einem Barabasi-Albert-Netzwerk',
-    )
-
-    animate_network(
-        adjacency,
-        positions,
-        history,
-        filename='sir_network_animation.gif',
-        interval=200,
-    )
-
-    print('Fertig. Erstellte Dateien: sir_network_time_series.png und sir_network_animation.gif')
-
-
-if __name__ == '__main__':
-    main()
