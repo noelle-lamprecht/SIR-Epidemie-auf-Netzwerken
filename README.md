@@ -26,8 +26,8 @@ For each time step, the following sequence of processes is executed, with all st
 •	Stochasticity: Both the network generation (initialization) and the infection processes use random numbers to represent real-world uncertainties.
 •	Observation: The primary measure recorded over time is the number of currently infected individuals (the epidemic curve). "Hubs" in scale-free networks play a critical role as super-spreaders.
 •	Feedback Loops:
-o	Positive Feedback: More infected individuals lead to more contacts, which leads to even more infected individuals. This explains the exponential growth at the beginning of an epidemic.
-o	Negative Feedback: The more people are infected or recovered, the fewer susceptible individuals remain. This stabilizes the system and causes the wave to subside.
+    o	Positive Feedback: More infected individuals lead to more contacts, which leads to even more infected individuals. This explains the exponential growth at the beginning of an epidemic.
+    o	Negative Feedback: The more people are infected or recovered, the fewer susceptible individuals remain. This stabilizes the system and causes the wave to subside.
 •	Nonlinearity
 •	Emergence
 •	Tipping Points (Kipppunkte)
