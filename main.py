@@ -139,3 +139,4 @@ plot_sir(t, s_t2, i_t2, r_t2, "Equilibrium Conditions 2")
 
     main() 
 >>>>>>> aac5ca2695fe0061a3475a7a789a314ee19b7dc2
+
