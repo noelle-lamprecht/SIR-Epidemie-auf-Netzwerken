@@ -43,8 +43,8 @@ Jeder Zeitschritt umfasst die folgenden Prozesse in Reihenfolge:
 - Zeithorizont tmax = 500.
 - Zwei Szenarien werden initialisiert:
   - Szenario 1:
-    - beta = 0.3
-    - gamma = 0.3
+    - beta = 0.3 # Infektionsrate
+    - gamma = 0.3 #genesungsrate
     - mu = 0.3
     - S(0) = 100
     - I(0) = 900
