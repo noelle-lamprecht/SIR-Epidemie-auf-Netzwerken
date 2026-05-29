@@ -71,6 +71,18 @@ def simulate_sir(
     params: SIRParams,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Simuliert den SIR-Prozess auf dem gegebenen Netzwerk."""
+    _, _, _, states_history = simulate_sir_with_states(graph, params)
+    s_history = np.array([(states == 0).sum() for states in states_history])
+    i_history = np.array([(states == 1).sum() for states in states_history])
+    r_history = np.array([(states == 2).sum() for states in states_history])
+    return s_history, i_history, r_history
+
+
+def simulate_sir_with_states(
+    graph: Dict[int, Set[int]],
+    params: SIRParams,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, List[np.ndarray]]:
+    """Simuliert den SIR-Prozess und gibt Zustände pro Zeitschritt zurück."""
     random.seed(params.seed)
     n = len(graph)
     susceptible: Set[int] = set(graph.keys())
@@ -81,9 +93,9 @@ def simulate_sir(
     infected.update(initial_infected)
     susceptible.difference_update(initial_infected)
 
-    s_history = [len(susceptible)]
-    i_history = [len(infected)]
-    r_history = [len(recovered)]
+    state = np.zeros(n, dtype=np.int8)
+    state[list(initial_infected)] = 1
+    states_history: List[np.ndarray] = [state.copy()]
 
     for step in range(params.max_steps):
         if not infected:
@@ -94,9 +106,8 @@ def simulate_sir(
 
         for node in infected:
             for neighbor in graph[node]:
-                if neighbor in susceptible:
-                    if random.random() < params.beta:
-                        new_infected.add(neighbor)
+                if neighbor in susceptible and random.random() < params.beta:
+                    new_infected.add(neighbor)
 
         for node in infected:
             if random.random() < params.gamma:
@@ -107,11 +118,15 @@ def simulate_sir(
         infected.difference_update(new_recovered)
         recovered.update(new_recovered)
 
-        s_history.append(len(susceptible))
-        i_history.append(len(infected))
-        r_history.append(len(recovered))
+        state = state.copy()
+        state[list(new_infected)] = 1
+        state[list(new_recovered)] = 2
+        states_history.append(state)
 
-    return np.array(s_history), np.array(i_history), np.array(r_history)
+    s_history = np.array([(states == 0).sum() for states in states_history])
+    i_history = np.array([(states == 1).sum() for states in states_history])
+    r_history = np.array([(states == 2).sum() for states in states_history])
+    return s_history, i_history, r_history, states_history
 
 
 def plot_sir_curves(
@@ -155,6 +170,104 @@ def plot_degree_distribution(graph: Dict[int, Set[int]], ba_params: BarabasiAlbe
     if save_file:
         fig.savefig(save_file)
         print(f"Gradverteilung gespeichert als: {save_file}")
+    plt.show()
+    plt.close(fig)
+
+
+def create_node_positions(graph: Dict[int, Set[int]], seed: int = 42) -> Dict[int, Tuple[float, float]]:
+    """Erstellt feste Positionen für eine Netzwerkvisualisierung."""
+    rng = random.Random(seed)
+    return {node: (rng.random(), rng.random()) for node in graph}
+
+
+def plot_network_snapshot(
+    graph: Dict[int, Set[int]],
+    states: np.ndarray,
+    positions: Dict[int, Tuple[float, float]],
+    ba_params: BarabasiAlbertParams,
+    save_file: str | None = None,
+) -> None:
+    """Zeigt einen Schnappschuss des Netzwerks mit SIR-Färbung."""
+    fig, ax = plt.subplots(figsize=(8, 8))
+    edge_lines = []
+    for u, neighbors in graph.items():
+        for v in neighbors:
+            if u < v:
+                x0, y0 = positions[u]
+                x1, y1 = positions[v]
+                edge_lines.append(((x0, x1), (y0, y1)))
+
+    for x_pair, y_pair in edge_lines:
+        ax.plot(x_pair, y_pair, color="lightgray", linewidth=0.4, alpha=0.4)
+
+    xs = [positions[node][0] for node in graph]
+    ys = [positions[node][1] for node in graph]
+    colors = ["tab:blue" if state == 0 else "tab:red" if state == 1 else "tab:green" for state in states]
+    ax.scatter(xs, ys, c=colors, s=20, edgecolor="black", linewidth=0.2)
+
+    ax.set_title(f"Barabási-Albert-Netzwerk, Zustandsschätzung (N={ba_params.node_count})")
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.axis("off")
+    fig.tight_layout()
+    if save_file:
+        fig.savefig(save_file)
+        print(f"Netzwerk-Snapshot gespeichert als: {save_file}")
+    plt.show()
+    plt.close(fig)
+
+
+def animate_network_spread(
+    graph: Dict[int, Set[int]],
+    states_history: List[np.ndarray],
+    positions: Dict[int, Tuple[float, float]],
+    ba_params: BarabasiAlbertParams,
+    save_file: str | None = None,
+) -> None:
+    """Animiert den Infektionsverlauf im Netzwerk."""
+    fig, ax = plt.subplots(figsize=(8, 8))
+    edge_lines = []
+    for u, neighbors in graph.items():
+        for v in neighbors:
+            if u < v:
+                x0, y0 = positions[u]
+                x1, y1 = positions[v]
+                edge_lines.append(((x0, x1), (y0, y1)))
+
+    for x_pair, y_pair in edge_lines:
+        ax.plot(x_pair, y_pair, color="lightgray", linewidth=0.4, alpha=0.4)
+
+    xs = [positions[node][0] for node in graph]
+    ys = [positions[node][1] for node in graph]
+    scatter = ax.scatter(xs, ys, s=20, edgecolor="black", linewidth=0.2)
+    ax.set_title(f"Infektionsausbreitung im Barabási-Albert-Netzwerk (N={ba_params.node_count})")
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.axis("off")
+
+    def update(frame: int):
+        colors = ["tab:blue" if state == 0 else "tab:red" if state == 1 else "tab:green" for state in states_history[frame]]
+        scatter.set_color(colors)
+        ax.set_title(
+            f"Infektionsausbreitung im Barabási-Albert-Netzwerk (Schritt {frame}, N={ba_params.node_count})"
+        )
+        return scatter,
+
+    anim = animation.FuncAnimation(
+        fig,
+        update,
+        frames=len(states_history),
+        interval=120,
+        blit=True,
+        repeat=False,
+    )
+
+    if save_file:
+        try:
+            anim.save(save_file, writer="pillow", fps=5)
+            print(f"Netzwerk-Animation gespeichert als: {save_file}")
+        except Exception as err:
+            print(f"Konnte Netzwerk-Animation nicht speichern: {err}")
     plt.show()
     plt.close(fig)
 
@@ -229,7 +342,8 @@ def main() -> None:
     )
 
     graph = generate_barabasi_albert_network(ba_params)
-    s, i, r = simulate_sir(graph, sir_params)
+    s, i, r, states_history = simulate_sir_with_states(graph, sir_params)
+    positions = create_node_positions(graph, ba_params.seed)
 
     print("Parameter:")
     print(f"  Knoten: {ba_params.node_count}")
@@ -240,11 +354,26 @@ def main() -> None:
     print(f"  Simulationsschritte: {len(s)}")
     print(f"  Max. Infected: {i.max() if len(i) else 0}")
 
-    output_dir = "output"
+    output_dir = os.path.join(os.path.dirname(__file__), "output")
     os.makedirs(output_dir, exist_ok=True)
+    print(f"Saving graphs to: {output_dir}")
 
     plot_degree_distribution(graph, ba_params, save_file=os.path.join(output_dir, "degree_distribution.png"))
     plot_sir_curves(s, i, r, sir_params, ba_params, save_file=os.path.join(output_dir, "sir_curves.png"))
+    plot_network_snapshot(
+        graph,
+        states_history[0],
+        positions,
+        ba_params,
+        save_file=os.path.join(output_dir, "network_initial.png"),
+    )
+    plot_network_snapshot(
+        graph,
+        states_history[-1],
+        positions,
+        ba_params,
+        save_file=os.path.join(output_dir, "network_final.png"),
+    )
     animate_sir_curves(
         s,
         i,
@@ -252,6 +381,13 @@ def main() -> None:
         sir_params,
         ba_params,
         save_file=os.path.join(output_dir, "sir_animation.gif"),
+    )
+    animate_network_spread(
+        graph,
+        states_history,
+        positions,
+        ba_params,
+        save_file=os.path.join(output_dir, "network_animation.gif"),
     )
 
 
