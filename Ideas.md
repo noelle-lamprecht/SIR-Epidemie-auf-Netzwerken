@@ -6,7 +6,7 @@ Was passiert wenn jeder unterschiedlich viele Kontakte hat ?  Erledigt
 Der Einfluss von Herdenimmunität vs. Impfmüdigkeit
 Super-Spreader gezielt isolieren (Gezielter Lockdown)
 Mutationen und evolutionärer Wettlauf
- Saisonale Effekte (Winter- vs. Sommer-Wellen)
+ Saisonale Effekte (Winter- vs. Sommer-Wellen) . 
  Gleichgewicht in Kürzesterzeit?(?
  Krankheits-Sackgassen durch „Community Clustering“
  Medikamenten-Knappheit und überlastetes Gesundheitssystem (Triage))
