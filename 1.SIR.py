@@ -1,9 +1,12 @@
+#Was ist das SIR Modell?
+#Welche Forschungsfragen wollen wir beantworten?
+#
 import random
 import matplotlib.pyplot as plt
 import numpy as np
 
 # --- KONFIGURATION ---
-SZENARIO = 1  # Wähle hier: 1, 2 oder 3
+SZENARIO = 1  
 ZEITSCHRITTE = 200
 ANZAHL_PERSONEN = 300
 
@@ -26,7 +29,7 @@ elif SZENARIO == 3:
     VERBINDUNGEN_MAX = 4
 
 
-# --- AGENTEN-KLASSE (Die Personen) ---
+# --- AGENTEN-KLASSE ---
 class Person:
 
     def __init__(self, status="S"):
