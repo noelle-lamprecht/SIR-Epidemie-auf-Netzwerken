@@ -126,7 +126,7 @@ plt.axvline(
 )
 
 plt.title(
-    f"Agentenbasiertes SIRS-Modell - Szenario {SZENARIO} (Konstante Population)"
+    f"Agentenbasiertes SIRS-Modell - Szenario {SZENARIO} "
 )
 plt.xlabel("Zeitschritte (Tage)")
 plt.ylabel("Anzahl Personen")
