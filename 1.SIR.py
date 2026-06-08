@@ -1,6 +1,13 @@
 #Was ist das SIR Modell?
+ #Ist ein Modell mit 3 Zuständen, die eine Person während des Modellaufs annehmen kann.
+ #S = Susceptible (Anfällig): Eine Person ist gesund, kann sich aber mit dem Virus anstecken
+ #I = Infiziert: Die Person trägt ein Virus und ist somit ansteckend für Anfällige Personen
+ #R = Recovered (Genesen): Die Person hat die Krankheit überstanden und ist (vorerst)immun
+
 #Welche Forschungsfragen wollen wir beantworten?
-#
+# Was passiert wenn man Parameter, wie Sterbe-und Geburtenrate, Immunität und saisonale Infektionswellen in die SIR Epidemie einführt?
+    # Wie verändern sich dabei die Ergebnisse?
+
 import random
 import matplotlib.pyplot as plt
 import numpy as np
@@ -30,6 +37,8 @@ elif SZENARIO == 3:
 
 
 # --- AGENTEN-KLASSE ---
+# Erschaffen Agenten
+    #Jeder Agent bekommt
 class Person:
 
     def __init__(self, status="S"):
@@ -114,7 +123,7 @@ print("-" * 65)
 plt.figure(figsize=(12, 7))
 plt.plot(stats_S, "b", label="Anfällig (S)")
 plt.plot(stats_I, "r", label="Infiziert (I)")
-plt.plot(stats_R, "g", label="Temporär Genesen (R)")
+plt.plot(stats_R, "g", label="Genesen (R)")
 
 # Zeichne eine vertikale gestrichelte Linie am Peak-Tag in die Grafik
 plt.axvline(
