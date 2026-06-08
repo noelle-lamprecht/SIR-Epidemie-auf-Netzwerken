@@ -4,6 +4,8 @@
 #In dieser Liste speichern wir fest ab, wer die „Freunde“ oder Kontakte dieser Person im Netzwerk sind.
 import random
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from matplotlib.patches import Patch
 import networkx as nx  # WICHTIG: networkx wird für das Barabási-Modell benötigt!
 import numpy as np
 
@@ -15,7 +17,7 @@ ANZAHL_PERSONEN = 300
 
 ANSTECKUNGSRATE = 0.05
 GENESUNGSRATE = 0.02
-IMMUNITAETS_DAUER = 30
+IMMUNITAETS_DAUER = 30 
 
 URSPRUNGLICH_INFIZIERT = 5
 
@@ -24,7 +26,7 @@ URSPRUNGLICH_INFIZIERT = 5
 # M bestimmt, wie viele Kanten ein neuer Knoten beim Erstellen erhält.
 # Höheres M = dichteres Netzwerk (mehr Kontakte für alle).
 # =========================================================================
-M_KANTEN = 2
+M_KANTEN = 2 
 
 
 # --- AGENTEN-KLASSE (Die Personen) ---
@@ -63,6 +65,7 @@ for edge in ba_graph.edges():
 
 # Statistik-Listen für die Grafik
 stats_S, stats_I, stats_R = [], [], []
+status_history = []
 
 max_infizierte = 0
 peak_tag = 0
@@ -110,6 +113,7 @@ for t in range(ZEITSCHRITTE):
     stats_S.append(S_count)
     stats_I.append(I_count)
     stats_R.append(R_count)
+    status_history.append([p.status for p in population])
 
     if I_count > max_infizierte:
         max_infizierte = I_count
@@ -125,24 +129,100 @@ print(
 )
 print("-" * 65)
 
-# --- AUSWERTUNG UND PLOT ---
-plt.figure(figsize=(12, 7))
-plt.plot(stats_S, "b", label="Anfällig (S)")
-plt.plot(stats_I, "r", label="Infiziert (I)")
-plt.plot(stats_R, "g", label="Temporär Genesen (R)")
-plt.axvline(
-    x=peak_tag,
-    color="gray",
-    linestyle="--",
-    label=f"Peak (Tag {peak_tag})",
-    alpha=0.7,
+# --- AUSWERTUNG UND ANIMATION ---
+pos = nx.spring_layout(ba_graph, seed=42)
+color_map = {"S": "#4285f4", "I": "#de2d26", "R": "#2ca02c"}
+node_colors_history = [[color_map[status] for status in statuses] for statuses in status_history]
+
+fig, (ax_net, ax_stats) = plt.subplots(
+    2,
+    1,
+    figsize=(12, 12),
+    gridspec_kw={"height_ratios": [2, 1]},
 )
 
-plt.title(
-    f"Agentenbasiertes SIRS-Modell mit Barabási-Albert-Netzwerk (M={M_KANTEN})"
+ax_stats.set_xlim(0, ZEITSCHRITTE)
+ax_stats.set_ylim(0, ANZAHL_PERSONEN)
+ax_stats.set_xlabel("Zeitschritte (Tage)")
+ax_stats.set_ylabel("Anzahl Personen")
+ax_stats.grid(True, linestyle="--", alpha=0.4)
+ax_stats.set_title("SIRS-Statistik über die Zeit")
+line_S, = ax_stats.plot([], [], "b", label="Anfällig (S)")
+line_I, = ax_stats.plot([], [], "r", label="Infiziert (I)")
+line_R, = ax_stats.plot([], [], "g", label="Genesen (R)")
+ax_stats.axvline(x=peak_tag, color="gray", linestyle="--", alpha=0.7, label=f"Peak (Tag {peak_tag})")
+ax_stats.legend(loc="upper right")
+
+ax_net.set_title(f"Barabási-Albert-Netzwerk SIRS-Animation (M={M_KANTEN})")
+ax_net.axis("off")
+ax_net.legend(
+    handles=[
+        Patch(color=color_map["S"], label="Anfällig (S)"),
+        Patch(color=color_map["I"], label="Infiziert (I)"),
+        Patch(color=color_map["R"], label="Genesen (R)"),
+    ],
+    loc="lower left",
+    framealpha=0.9,
 )
-plt.xlabel("Zeitschritte (Tage)")
-plt.ylabel("Anzahl Personen")
-plt.grid(True, linestyle="--", alpha=0.5)
-plt.legend()
+
+frame_text = ax_net.text(
+    0.02,
+    0.95,
+    "",
+    transform=ax_net.transAxes,
+    fontsize=12,
+    verticalalignment="top",
+    bbox={"facecolor": "white", "alpha": 0.8, "edgecolor": "gray"},
+)
+
+
+def init():
+    ax_net.clear()
+    ax_net.axis("off")
+    ax_net.set_title(f"Barabási-Albert-Netzwerk SIRS-Animation (M={M_KANTEN})")
+    nx.draw_networkx_edges(ba_graph, pos=pos, ax=ax_net, alpha=0.3)
+    line_S.set_data([], [])
+    line_I.set_data([], [])
+    line_R.set_data([], [])
+    frame_text.set_text("")
+    return line_S, line_I, line_R, frame_text
+
+
+def update(frame):
+    ax_net.clear()
+    ax_net.axis("off")
+    ax_net.set_title(f"Barabási-Albert-Netzwerk SIRS-Animation (M={M_KANTEN})")
+    nx.draw_networkx_edges(ba_graph, pos=pos, ax=ax_net, alpha=0.3)
+    nx.draw_networkx_nodes(
+        ba_graph,
+        pos=pos,
+        node_color=node_colors_history[frame],
+        ax=ax_net,
+        node_size=120,
+        edgecolors="black",
+        linewidths=0.3,
+    )
+
+    x = list(range(frame + 1))
+    line_S.set_data(x, stats_S[: frame + 1])
+    line_I.set_data(x, stats_I[: frame + 1])
+    line_R.set_data(x, stats_R[: frame + 1])
+    frame_text.set_text(
+        f"Tag: {frame}   S: {stats_S[frame]}   I: {stats_I[frame]}   R: {stats_R[frame]}"
+    )
+    return line_S, line_I, line_R, frame_text
+
+ani = animation.FuncAnimation(
+    fig,
+    update,
+    frames=len(status_history),
+    init_func=init,
+    interval=50,
+    blit=False,
+)
+
+plt.tight_layout()
 plt.show()
+
+
+

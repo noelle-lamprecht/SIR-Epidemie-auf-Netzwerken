@@ -28,7 +28,7 @@ Globale Variablen:
  `GEBURTENRATE_TAG`
  `STERBERATE_TAG`
 Skalen: 
-Zeit: 1 Zeitschritt entspricht 1 Tag. Die Gesamtdauer beträgt 200 Zeitschritte.
+Zeit: 1 Zeitschritt entspricht 1 Tag. Die Gesamtdauer beträgt 730 Zeitschritte.
 Raum: Nicht-räumlich (netzwerkbasiert / "Well-Mixed" innerhalb der Verbindungspunkte).
 
 
@@ -38,13 +38,15 @@ Raum: Nicht-räumlich (netzwerkbasiert / "Well-Mixed" innerhalb der Verbindungsp
 Innerhalb jedes Zeitschritts (Tages) werden folgende Prozesse nacheinander für alle Agenten ausgeführt:
 
 1. Infektionsphase: Alle infizierten Agenten wählen zufällig Kontakte aus der Population (entsprechend ihrer `max_verbindungen`) und können diese mit der Wahrscheinlichkeit (beta) anstecken.
+
 2. Zustands-Update: Infizierte Agenten genesen mit der Wahrscheinlichkeit (gamma).
 
 Genesene Agenten (R) zählen ihre Immunitätstage hoch. Nach Ablauf von 30 Tagen werden sie wieder anfällig (S), es sei denn, es war ihre zweite Infektion – dann werden sie dauerhaft immun (M).
 
-
 3. Demografie (Mortalität): Jeder Agent kann mit der Wahrscheinlichkeit `STERBERATE_TAG` sterben und wird aus der Simulation gelöscht.
 4. Demografie (Natalität): Basierend auf der aktuellen Populationsgröße und der `GEBURTENRATE_TAG` werden neue Agenten im Zustand (S) geboren.
+
+
 5. Datenerfassung: Die Systemzustände werden für die Endauswertung aufgezeichnet.
 
 ---
