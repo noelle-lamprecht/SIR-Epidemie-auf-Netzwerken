@@ -37,13 +37,12 @@ elif SZENARIO == 3:
 
 
 # --- AGENTEN-KLASSE ---
-# Erschaffen Agenten
-    #Jeder Agent bekommt
+
 class Person:
 
     def __init__(self, status="S"):
         self.status = status  # 'S' (Anfällig), 'I' (Infiziert), 'R' (Genesen)
-        self.tage_seit_genesung = 0  # Tracker für die 30 Zeitschritte Immunität
+        self.tage_seit_genesung = 0 
         self.max_verbindungen = random.randint(
             VERBINDUNGEN_MIN, VERBINDUNGEN_MAX
         )
