@@ -113,7 +113,7 @@ for t in range(ZEITSCHRITTE):
     stats_S.append(S_count)
     stats_I.append(I_count)
     stats_R.append(R_count)
-    stats_N.append(ANZAHL_PERSONEN)
+    stats_N.append(len(population))
     status_history.append([p.status for p in population])
 
     if I_count > max_infizierte:
@@ -246,7 +246,7 @@ plt.axvline(
     alpha=0.7,
 )
 
-plt.title(f"SIRS-Modell im Barabási-Albert-Netzwerk (M={M_KANTEN})")
+plt.title(f"SIRS-Modell im Barabási-Albert-Netzwerk (M={M_KANTEN}) - Daten aus BarabasiSIR.py")
 plt.xlabel("Zeitschritte (Tage)")
 plt.ylabel("Anzahl Personen")
 plt.grid(True, linestyle="--", alpha=0.5)
