@@ -12,8 +12,8 @@ GENESUNGSRATE = 0.02
 IMMUNITAETS_DAUER = 30
 
 # Österreichische Raten (auf Tagesbasis umgerechnet: Jahresrate / 365)
-GEBURTENRATE_TAG = (8.3 / 1000) / 365
-STERBERATE_TAG = (9.5 / 1000) / 365
+GEBURTENRATE_TAG = (8.2 / 1000) / 365
+STERBERATE_TAG = (9.4 / 1000) / 365
 
 # Szenario-spezifische Parameter setzen
 if SZENARIO == 1:
