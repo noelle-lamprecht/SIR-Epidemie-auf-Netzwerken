@@ -246,7 +246,7 @@ plt.axvline(
     alpha=0.7,
 )
 
-plt.title(f"SIRS-Modell im Barabási-Albert-Netzwerk (M={M_KANTEN}) - Daten aus BarabasiSIR.py")
+plt.title(f"SIRS-Modell im Barabási-Albert-Netzwerk (M={M_KANTEN})")
 plt.xlabel("Zeitschritte (Tage)")
 plt.ylabel("Anzahl Personen")
 plt.grid(True, linestyle="--", alpha=0.5)
