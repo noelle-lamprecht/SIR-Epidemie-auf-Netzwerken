@@ -64,7 +64,7 @@ for edge in ba_graph.edges():
 # =========================================================================
 
 # Statistik-Listen für die Grafik
-stats_S, stats_I, stats_R = [], [], []
+stats_S, stats_I, stats_R, stats_N = [], [], [], []
 status_history = []
 
 max_infizierte = 0
@@ -113,6 +113,7 @@ for t in range(ZEITSCHRITTE):
     stats_S.append(S_count)
     stats_I.append(I_count)
     stats_R.append(R_count)
+    stats_N.append(ANZAHL_PERSONEN)
     status_history.append([p.status for p in population])
 
     if I_count > max_infizierte:
@@ -127,9 +128,17 @@ print(f"\nANALYSE:")
 print(
     f"Der Höhepunkt (Peak) war an Tag {peak_tag} mit {max_infizierte} gleichzeitig Infizierten."
 )
+
+last_day = ZEITSCHRITTE - 1
+last_S = stats_S[-1]
+last_I = stats_I[-1]
+last_R = stats_R[-1]
+print(
+    f"Am letzten Zeitschritt (Tag {last_day}) waren {last_S} Personen anfällig, {last_I} infiziert und {last_R} temporär genesen."
+)
 print("-" * 65)
 
-# --- AUSWERTUNG UND ANIMATION ---
+# --- AUSWERTUNG ANIMATION UND PLOT ---
 pos = nx.spring_layout(ba_graph, seed=42)
 color_map = {"S": "#4285f4", "I": "#de2d26", "R": "#2ca02c"}
 node_colors_history = [[color_map[status] for status in statuses] for statuses in status_history]
@@ -221,6 +230,27 @@ ani = animation.FuncAnimation(
     blit=False,
 )
 
+fig.tight_layout()
+
+plt.figure(figsize=(12, 7))
+plt.plot(stats_S, "b", label="Anfällig (S)")
+plt.plot(stats_I, "r", label="Infiziert (I)")
+plt.plot(stats_R, "g", label="Genesen (R)")
+plt.plot(stats_N, "k--", label="Gesamtbevölkerung (N)", alpha=0.5)
+
+plt.axvline(
+    x=peak_tag,
+    color="gray",
+    linestyle="--",
+    label=f"Peak (Tag {peak_tag})",
+    alpha=0.7,
+)
+
+plt.title(f"SIRS-Modell im Barabási-Albert-Netzwerk (M={M_KANTEN})")
+plt.xlabel("Zeitschritte (Tage)")
+plt.ylabel("Anzahl Personen")
+plt.grid(True, linestyle="--", alpha=0.5)
+plt.legend()
 plt.tight_layout()
 plt.show()
 
