@@ -201,11 +201,17 @@ for t in range(ZEITSCHRITTE):
             f"{t:<5} | {S_count:<13} | {I_count:<13} | {R_count:<13} | {M_count:<10} | {N_count:<10}"
         )
 
+zero_infected_day = next((day for day, count in enumerate(stats_I) if count == 0), None)
+
 print("-" * 85)
 print(f"\nANALYSE:")
 print(
     f"Der Höhepunkt (Peak) war an Tag {peak_tag} mit {max_infizierte} gleichzeitig Infizierten."
 )
+if zero_infected_day is not None:
+    print(f"Ab Tag {zero_infected_day} gibt es keine Infizierten mehr.")
+else:
+    print("Es gab während der Simulation nie einen Zeitpunkt mit 0 Infizierten.")
 
 last_day = ZEITSCHRITTE - 1
 last_S = stats_S[-1]
@@ -351,6 +357,15 @@ plt.axvline(
     label=f"Peak (Tag {peak_tag})",
     alpha=0.7,
 )
+
+if 'zero_infected_day' in globals() and zero_infected_day is not None:
+    plt.axvline(
+        x=zero_infected_day,
+        color="gray",
+        linestyle="--",
+        alpha=0.7,
+        label=f"0 Infizierte (Tag {zero_infected_day})",
+    )
 
 plt.title(
     f"SIRS-Modell mit Barabási-Netzwerk, Dauerimmunität & Demografie (M={M_KANTEN})"
