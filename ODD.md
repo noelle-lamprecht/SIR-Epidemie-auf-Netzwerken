@@ -76,8 +76,8 @@ Szenario 3: 1 Agent startet in (I), alle anderen in (S). Jeder Agent erhält zuf
 
 Das Modell nutzt die demografischen Kennzahlen Österreichs (hochgerechnet/angepasst auf das Jahr 2026), umgerechnet von Jahres- auf Tageswerte:
 
-Geburtenrate: ca. 8,3 pro 1.000 Einwohner pro Jahr (8.3 / 1000 / 365) pro Tag.
-Sterberate: ca. 9,5 pro 1.000 Einwohner pro Jahr (9.5 / 1000 / 365) pro Tag.
+Geburtenrate: ca. 8,2 pro 1.000 Einwohner pro Jahr (8.2 / 1000 / 365) pro Tag.
+Sterberate: ca. 9,4 pro 1.000 Einwohner pro Jahr (9.4 / 1000 / 365) pro Tag.
 
 ### 3.3 Submodelle
 
