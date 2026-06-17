@@ -1,4 +1,6 @@
-import random
+#This code simulates the Winter and Summer seasonal influence 
+# in a Barabási–Albert SIR epidemic model with demographics and long-term immunity.
+
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.patches import Patch

@@ -1,3 +1,9 @@
+# Barabási–Albert SIR epidemic simulation on a contact network.
+
+# This code simulates the spread of an infectious disease in a population structured as a Barabási–Albert network.
+# Parameter: infection, recovery, immunity loss, births, and deaths.
+
+
 import random
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
