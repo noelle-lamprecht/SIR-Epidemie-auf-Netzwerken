@@ -1,12 +1,13 @@
 #Previous version: each agent had only a number (max_contacts) that determined
-    #how many random contacts they drew per day from a pool.
-#New version: each agent now has a unique id (0 to 299) and an empty list self.contacts.
-#In this list we permanently store who the "friends" or contacts of this person are in the network.
+    # how many random contacts they drew per day from a pool.
+#New version: each agent has a unique id and an empty list self.contacts.
+    #In the list we permanently store who the "friends" or contacts of this person are in the network.
+
 import random
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.patches import Patch
-import networkx as nx  # IMPORTANT: networkx is required for the Barabási model
+import networkx as nx  #IMPORTANT
 import numpy as np
 
 # --- CONFIGURATION ---
@@ -21,47 +22,47 @@ IMMUNITY_DURATION = 30
 
 INITIAL_INFECTED = 5
 
-# =========================================================================
-# === BARABÁSI-ALBERT NETWORK PARAMETERS ===
+# --- BARABÁSI-ALBERT NETWORK PARAMETERS ---
 # M determines how many edges a new node receives when it is created.
 # A node that already has many connections is more likely to receive new ones.
-# =========================================================================
+
 M_EDGES = 2
 
 
-# --- AGENT CLASS (People) ---
+# --- AGENT CLASS ---
 class Person:
 
     def __init__(self, status="S", id=0):
-        self.id = id  # Unique ID for network mapping
+        self.id = id  # ID for network mapping
         self.status = status  # 'S', 'I', 'R'
         self.days_since_recovery = 0
-        # Contacts are now fixed by the network structure!
+        # Contacts
         self.contacts = []
 
 
 # --- INITIALIZE SIMULATION ---
-# Create people with IDs
+# Creates people with IDs
 population = [Person(id=i) for i in range(POPULATION_SIZE)]
 
 # Set initial infected people
 for i in range(INITIAL_INFECTED):
     population[i].status = "I"
 
-# =========================================================================
-# === BARABÁSI-ALBERT NETWORK CREATION ===
-# Here we generate the scale-free graph. The principle is: "rich get richer".
-# Nodes that already have many connections are more likely to receive new ones.
-# =========================================================================
+
+# --- BARABÁSI-ALBERT NETWORK CREATION ---
+
+# Generating a scale-free graph. The principle is: "rich get richer".
+# The nodes that already have many connections are more likely to receive new ones.
+
 ba_graph = nx.barabasi_albert_graph(n=POPULATION_SIZE, m=M_EDGES, seed=42)
 
 # Transfer the graph connections into our person objects
 for edge in ba_graph.edges():
     p1_id, p2_id = edge
-    # Person 1 knows person 2 and vice versa (undirected network)
+    # Person 1 knows person 2 and vice versa 
     population[p1_id].contacts.append(population[p2_id])
     population[p2_id].contacts.append(population[p1_id])
-# =========================================================================
+
 
 # Statistic lists for the plot
 stats_S, stats_I, stats_R, stats_total = [], [], [], []
@@ -76,14 +77,17 @@ print(
 )
 print("-" * 65)
 
-# --- SIMULATION LOOP (time steps) ---
+# --- SIMULATION LOOP ---
 for t in range(TIME_STEPS):
 
-    # =========================================================================
-    # === BARABÁSI-ALBERT NETWORK APPLICATION (infection phase) ===
+   
+    # --- BARABÁSI-ALBERT NETWORK APPLICATION ---
+                # Infection phase
+
     # The infected person no longer meets random people from the entire population,
     # but only their fixed neighbors from the Barabási network.
-    # =========================================================================
+   
+
     infected = [p for p in population if p.status == "I"]
 
     for inf in infected:
@@ -92,7 +96,7 @@ for t in range(TIME_STEPS):
             if contact.status == "S":
                 if random.random() < INFECTION_RATE:
                     contact.status = "I"
-    # =========================================================================
+    
 
     # 2. Status updates (recovery, immunity expiration)
     for p in population:

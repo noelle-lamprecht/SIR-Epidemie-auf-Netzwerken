@@ -5,8 +5,8 @@
  # R = Recovered: The person has overcome the disease and is (for now) immune.
 
 # Which research questions do we want to answer?
-# What happens if we add parameters like birth/death rates, immunity, and seasonal infection waves to the SIR epidemic?
-    # How do the results change?
+# How does the gradual integration of realistic network topology,
+#   demographic dynamics, and seasonal environmental influences affect the course of an epidemic in an agent-based SIR model?
 
 import random
 import matplotlib.pyplot as plt
@@ -55,7 +55,7 @@ for i in range(INITIAL_INFECTED):
 # Statistic lists for the plot
 stats_S, stats_I, stats_R = [], [], []
 
-# Variables for peak analysis (wave peak)
+# Variables for peak analysis
 max_infected = 0
 peak_day = 0
 
@@ -65,7 +65,7 @@ print(
 )
 print("-" * 65)
 
-# --- SIMULATION LOOP (time steps) ---
+# --- SIMULATION LOOP  ---
 for t in range(TIME_STEPS):
     # 1. Make contacts and transmit infections
     infected = [p for p in population if p.status == "I"]
@@ -88,7 +88,7 @@ for t in range(TIME_STEPS):
             if p.days_since_recovery >= IMMUNITY_DURATION:
                 p.status = "S"
 
-    # 3. Collect data for statistics
+    # 3. Collect data
     S_count = sum(1 for p in population if p.status == "S")
     I_count = sum(1 for p in population if p.status == "I")
     R_count = sum(1 for p in population if p.status == "R")
@@ -97,7 +97,7 @@ for t in range(TIME_STEPS):
     stats_I.append(I_count)
     stats_R.append(R_count)
 
-    # Peak tracker: record when the most people were infected
+    # Peak tracker: when are the most people infected
     if I_count > max_infected:
         max_infected = I_count
         peak_day = t
@@ -113,13 +113,13 @@ print(
 )
 print("-" * 65)
 
-# --- EVALUATION AND PLOT ---
+# --- PLOT ---
 plt.figure(figsize=(12, 7))
 plt.plot(stats_S, "b", label="Susceptible (S)")
 plt.plot(stats_I, "r", label="Infected (I)")
 plt.plot(stats_R, "g", label="Recovered (R)")
 
-# Draw a vertical dashed line at the peak day in the plot
+# Vertical dashed line at the peak day in the plot
 plt.axvline(
     x=peak_day,
     color="gray",
