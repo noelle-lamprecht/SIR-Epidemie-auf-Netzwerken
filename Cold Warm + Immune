@@ -2,7 +2,7 @@ import random
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.patches import Patch
-import networkx as nx  # IMPORTANT for the network model
+import networkx as nx  # IMPORTANT 
 import numpy as np
 
 # --- CONFIGURATION ---
@@ -19,26 +19,25 @@ DEATH_RATE_DAY = (9.4 / 1000) / 365
 
 INITIAL_INFECTED = 5
 
-# =========================================================================
-# === BARABÁSI-ALBERT NETWORK PARAMETERS ===
-# M_EDGES determines how many contacts new people form (network density)
-# =========================================================================
+
+# --- BARABÁSI-ALBERT NETWORK PARAMETERS ---
+
 M_EDGES = 2
 
 
 # --- AGENT CLASS (People) ---
 class Person:
     def __init__(self, status="S", id=0, position=(0.0, 0.0)):
-        self.id = id  # ID for unique mapping in the network
+        self.id = id  # ID 
         self.status = status  # 'S', 'I', 'R', 'M'
         self.infection_counter = 0
         self.days_since_recovery = 0
         self.position = position
-        # Contacts are now managed permanently by the network
+        # Contacts 
         self.contacts = []
 
 
-# --- SIMULATION INITIALISIEREN ---
+# --- INITIALIZE SIMULATION ---
 random_state = np.random.RandomState(42)
 positions = {i: tuple(random_state.rand(2)) for i in range(POPULATION_SIZE)}
 population = [Person(id=i, position=positions[i]) for i in range(POPULATION_SIZE)]
@@ -80,51 +79,53 @@ print(
 )
 print("-" * 85)
 
-# --- SIMULATION LOOP (time steps) ---
+# --- SIMULATION LOOP ---
 for t in range(TIME_STEPS):
 
-    # =========================================================================
-    # === SAISONALER RATES-CHECK ===
-    # t // 182 bestimmt die Phase. Gerade Phasen (0, 2) = Kalt, Ungerade (1, 3) = Warm
-    # =========================================================================
+    
+    # --- SEASONAL RATES CHECK ---
+    # t // 182 determines the phase.
+    # Even phases (0, 2) = Cold
+    # Odd (1, 3) = Warm
+    
     if (t // 182) % 2 == 0:
-        current_infection_rate = 0.05  # Kalte Jahreszeit (Basiswert)
+        current_infection_rate = 0.05  # Cold season 
         current_recovery_rate = 0.02
     else:
-        current_infection_rate = 0.03  # Warme Jahreszeit (-2% Ansteckung)
-        current_recovery_rate = 0.04   # Schnellere Genesung im Sommer (+2%)
+        current_infection_rate = 0.03  # Warm season 
+        current_recovery_rate = 0.04   # Faster recovery in summer
         
-    # Wechseltage für die optischen Trennlinien im späteren Graph speichern
+    # Save season change days for visual lines in later graph
     if t % 182 == 0 and t > 0:
         seasons_change.append(t)
 
-    # =========================================================================
-    # === BARABÁSI-ALBERT NETWORK APPLICATION (infections) ===
-    # Infections are only passed to direct network neighbors.
-    # =========================================================================
+    
+    # --- BARABÁSI-ALBERT NETWORK APPLICATION (infections) ---
+    # 1. Infections are only passed to direct network neighbors.
+    
     infected = [p for p in population if p.status == "I"]
 
     for inf in infected:
         for contact in inf.contacts:
             if contact.status == "S":
-                if random.random() < current_infection_rate:  # Saisonale Rate angewendet
+                if random.random() < current_infection_rate:  # Seasonal rate applied
                     contact.status = "I"
                     contact.infection_counter += 1
-    # =========================================================================
+    
 
-    # 2. Status-Updates (Genesung, Immunitäts-Ablauf)
+    # 2. Status updates (recovery, immunity expiration)
     for p in population:
         if p.status == "I":
-            if random.random() < current_recovery_rate:  # Saisonale Rate angewendet
+            if random.random() < current_recovery_rate:  # Seasonal rate applied
                 p.status = "R"
                 p.days_since_recovery = 0
         elif p.status == "R":
             p.days_since_recovery += 1
             if p.days_since_recovery >= IMMUNITY_DURATION:
                 if p.infection_counter >= 2:
-                    p.status = "M"  # Permanently immune after 2 infections
+                    p.status = "M"  # Permanently immune after 2 infections!!!
                 else:
-                    p.status = "S"  # Susceptible again
+                    p.status = "S"  # if not: Susceptible again
 
     # 3. Demography: deaths
     survivors = []
@@ -175,7 +176,7 @@ for t in range(TIME_STEPS):
         population.append(new_baby)
         next_id += 1
 
-    # 5. Daten für Statistik sammeln
+    # 5. Statistics data
     S_count = sum(1 for p in population if p.status == "S")
     I_count = sum(1 for p in population if p.status == "I")
     R_count = sum(1 for p in population if p.status == "R")
@@ -199,7 +200,7 @@ for t in range(TIME_STEPS):
         max_infected = I_count
         peak_day = t
 
-    # 6. Print numbers to the console every 10 days
+    # 6. Print statistics every 10 days
     if t % 10 == 0 or t == TIME_STEPS - 1:
         print(
             f"{t:<5} | {S_count:<13} | {I_count:<13} | {R_count:<13} | {M_count:<10} | {total_count:<10}"
@@ -212,7 +213,8 @@ print(f"\nANALYSE:")
 print(f"The peak occurred on day {peak_day} with {max_infected} simultaneously infected.")
 print("-" * 85)
 
-# --- AUSWERTUNG ANIMATION UND PLOT ---
+# --- ANALYSIS, ANIMATION AND PLOT ---
+
 pos = positions
 color_map = {"S": "#4285f4", "I": "#de2d26", "R": "#2ca02c", "M": "#9467bd"}
 
@@ -228,14 +230,14 @@ ax_stats.set_ylim(0, max(stats_total) + 10)
 ax_stats.set_xlabel("Time steps (days)")
 ax_stats.set_ylabel("Number of people")
 ax_stats.grid(True, linestyle="--", alpha=0.4)
-ax_stats.set_title("SIRS-DB: statistics over time (Inkl. Saisonalität)")
+ax_stats.set_title("SIRS-DB: statistics over time (including seasonality)")
 line_S, = ax_stats.plot([], [], "b", label="Susceptible (S)")
 line_I, = ax_stats.plot([], [], "r", label="Infected (I)")
 line_R, = ax_stats.plot([], [], "g", label="Temporary Recovered (R)")
 line_M, = ax_stats.plot([], [], "m", label="Permanently Immune (M)")
 line_N, = ax_stats.plot([], [], "k--", label="Total population (N)", alpha=0.5)
 ax_stats.axvline(x=peak_day, color="gray", linestyle="--", alpha=0.7, label=f"Peak (Day {peak_day})")
-ax_stats.legend(loc="upper right")  # Oben rechts platziert
+ax_stats.legend(loc="upper right")  # upper right
 
 ax_net.set_title(f"Barabási-Albert network Cold-Warm animation (M={M_EDGES})")
 ax_net.axis("off")
@@ -246,7 +248,7 @@ ax_net.legend(
         Patch(color=color_map["R"], label="Recovered (R)"),
         Patch(color=color_map["M"], label="Permanently Immune (M)"),
     ],
-    loc="upper right",  # Oben rechts platziert, damit Start frei bleibt
+    loc="upper right",  # upper right so that it doesn't overlap with the network
     framealpha=0.9,
 )
 
@@ -327,7 +329,7 @@ ani = animation.FuncAnimation(
 fig.tight_layout()
 plt.show()
 
-# --- STATISCHER SCHLUSS-PLOT MIT JAHRESZEITEN-MARKERN ---
+# --- STATIC FINAL PLOT WITH SEASON MARKERS ---
 plt.figure(figsize=(12, 7))
 plt.plot(stats_S, "b", label="Susceptible (S)")
 plt.plot(stats_I, "r", label="Infected (I)")
@@ -335,17 +337,17 @@ plt.plot(stats_R, "g", label="Temporary Recovered (R)")
 plt.plot(stats_M, "m", label="Permanently Immune (M)")
 plt.plot(stats_total, "k--", label="Total population (N)", alpha=0.5)
 
-# Grau gepunktete Linien für die Jahreszeiten-Wechsel zeichnen
+# Gray dotted lines for season changes
 for change in seasons_change:
     plt.axvline(x=change, color="gray", linestyle=":", alpha=0.6)
 
-# Dunkelrote gestrichelte Linie für den Höchststand (Peak)
-plt.axvline(x=peak_day, color="darkred", linestyle="--", alpha=0.8, label=f"Peak (Day {peak_day}: {max_infected} Pers.)")
+# Dark red dashed line for the peak
+plt.axvline(x=peak_day, color="darkred", linestyle="--", alpha=0.8, label=f"Peak (Day {peak_day}: {max_infected} people)")
 
 if 'zero_infected_day' in globals() and zero_infected_day is not None:
     plt.axvline(x=zero_infected_day, color="darkgray", linestyle="--", alpha=0.7, label=f"0 infected (day {zero_infected_day})")
 
-# Text-Beschriftungen für die Jahreszeiten in das Diagramm setzen
+# Text labels for seasons in the diagram
 plt.text(50, max(stats_total) * 0.9, "COLD (Start)", fontsize=10, color="gray", weight="bold")
 plt.text(230, max(stats_total) * 0.9, "WARM", fontsize=10, color="orange", weight="bold")
 plt.text(410, max(stats_total) * 0.9, "COLD", fontsize=10, color="gray", weight="bold")
@@ -355,6 +357,6 @@ plt.title(f"Seasonal influence with Barabási network, long-term immunity & demo
 plt.xlabel("Time steps (days)")
 plt.ylabel("Number of people")
 plt.grid(True, linestyle="--", alpha=0.3)
-plt.legend(loc="upper right")  # Nach oben rechts verschoben, damit der Anfang frei bleibt
+plt.legend(loc="upper right")
 plt.tight_layout()
 plt.show()

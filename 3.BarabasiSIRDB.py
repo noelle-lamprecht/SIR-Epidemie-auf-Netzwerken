@@ -2,7 +2,7 @@ import random
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.patches import Patch
-import networkx as nx  # IMPORTANT for the network model
+import networkx as nx  # IMPORTANT 
 import numpy as np
 
 # --- CONFIGURATION ---
@@ -21,10 +21,10 @@ DEATH_RATE_DAY = (9.4 / 1000) / 365
 
 INITIAL_INFECTED = 5
 
-# =========================================================================
-# === BARABÁSI-ALBERT NETWORK PARAMETERS ===
-# M_EDGES determines how many contacts new people form (network density)
-# =========================================================================
+
+# --- BARABÁSI-ALBERT NETWORK PARAMETERS ---
+
+
 M_EDGES = 2
 
 
@@ -32,16 +32,16 @@ M_EDGES = 2
 class Person:
 
     def __init__(self, status="S", id=0, position=(0.0, 0.0)):
-        self.id = id  # ID for unique mapping in the network
+        self.id = id  # ID 
         self.status = status  # 'S', 'I', 'R', 'M'
         self.infection_counter = 0
         self.days_since_recovery = 0
         self.position = position
-        # Contacts are now managed permanently by the network
+        # Contacts
         self.contacts = []
 
 
-# --- SIMULATION INITIALISIEREN ---
+# --- INITIALIZE SIMULATION ---
 random_state = np.random.RandomState(42)
 positions = {i: tuple(random_state.rand(2)) for i in range(POPULATION_SIZE)}
 population = [Person(id=i, position=positions[i]) for i in range(POPULATION_SIZE)]
@@ -54,17 +54,17 @@ for i in range(INITIAL_INFECTED):
     population[i].status = "I"
     population[i].infection_counter = 1
 
-# =========================================================================
-# === BARABÁSI-ALBERT NETWORK INITIALIZATION ===
-# We create the starting graph and link the agents initially.
-# =========================================================================
+
+# --- BARABÁSI-ALBERT NETWORK INITIALIZATION ---
+# creating a starting graph and linking the agents initially.
+
 ba_graph = nx.barabasi_albert_graph(n=POPULATION_SIZE, m=M_EDGES, seed=42)
 
 for edge in ba_graph.edges():
     p1_id, p2_id = edge
     population[p1_id].contacts.append(population[p2_id])
     population[p2_id].contacts.append(population[p1_id])
-# =========================================================================
+
 
 # Statistic lists for plotting
 stats_S, stats_I, stats_R, stats_M, stats_total = [], [], [], [], []
@@ -82,13 +82,13 @@ print(
 )
 print("-" * 85)
 
-# --- SIMULATION LOOP (time steps) ---
+# --- SIMULATION LOOP ---
 for t in range(TIME_STEPS):
 
-    # =========================================================================
-    # === BARABÁSI-ALBERT NETWORK APPLICATION (infections) ===
-    # Infections are only passed to direct network neighbors.
-    # =========================================================================
+
+    # --- BARABÁSI-ALBERT NETWORK APPLICATION (infections) ---
+    #1. Infections are only passed to direct network neighbors.
+    
     infected = [p for p in population if p.status == "I"]
 
     for inf in infected:
@@ -97,9 +97,9 @@ for t in range(TIME_STEPS):
                 if random.random() < INFECTION_RATE:
                     contact.status = "I"
                     contact.infection_counter += 1
-    # =========================================================================
 
-    # 2. Status-Updates (Genesung, Immunitäts-Ablauf)
+
+    # 2. Status updates (recovery, immunity expiration)
     for p in population:
         if p.status == "I":
             if random.random() < RECOVERY_RATE:
@@ -114,7 +114,7 @@ for t in range(TIME_STEPS):
                     p.status = "S"  # Susceptible again
 
     # 3. Demography: deaths
-    # When a person dies, we must also remove them from all other contact lists!
+    # When a person dies, it is removed from all other contact lists
     survivors = []
     for p in population:
         if random.random() > DEATH_RATE_DAY:
@@ -142,7 +142,7 @@ for t in range(TIME_STEPS):
 
         if len(population) >= M_EDGES:
             # The Barabási mathematical model determines which old nodes get the new connections
-            # Nodes with high degree (many contacts) are preferred.
+            # Nodes with a high degree are preferred.
             node_list = list(ba_graph.nodes())
             degrees = [ba_graph.degree(n) for n in node_list]
             total_degree = sum(degrees)
@@ -161,7 +161,7 @@ for t in range(TIME_STEPS):
                 ba_graph.add_node(new_baby.id)
                 for p_id in chosen_partner_ids:
                     ba_graph.add_edge(new_baby.id, p_id)
-                    # Find the matching person in the population and link them
+                    # Finding matching person in the population and link them
                     for current_person in population:
                         if current_person.id == p_id:
                             current_person.contacts.append(new_baby)
@@ -171,7 +171,7 @@ for t in range(TIME_STEPS):
         population.append(new_baby)
         next_id += 1
 
-    # 5. Daten für Statistik sammeln
+    # 5. Statistics data
     S_count = sum(1 for p in population if p.status == "S")
     I_count = sum(1 for p in population if p.status == "I")
     R_count = sum(1 for p in population if p.status == "R")
@@ -195,7 +195,7 @@ for t in range(TIME_STEPS):
         max_infected = I_count
         peak_day = t
 
-    # 6. Print numbers to the console every 10 days
+    # 6. Print statistics every 10 days
     if t % 10 == 0 or t == TIME_STEPS - 1:
         print(
             f"{t:<5} | {S_count:<13} | {I_count:<13} | {R_count:<13} | {M_count:<10} | {total_count:<10}"
@@ -228,7 +228,7 @@ print(f"Maximum population during the simulation was {max_population} people.")
 print(f"Minimum population during the simulation was {min_population} people.")
 print("-" * 85)
 
-# --- AUSWERTUNG ANIMATION UND PLOT ---
+# --- ANALYSIS, ANIMATION AND PLOT ---
 pos = positions
 color_map = {"S": "#4285f4", "I": "#de2d26", "R": "#2ca02c", "M": "#9467bd"}
 

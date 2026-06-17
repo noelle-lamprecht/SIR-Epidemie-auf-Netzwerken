@@ -1,105 +1,105 @@
-# ODD Protokoll: Agentenbasiertes SIR-Modell mit Netzwerkkontakten und Demografie
+# ODD Protocol: Agent-based SIR Model with Network Contacts and Demography
 
-## 1. Übersicht
+## 1. Overview
 
-### 1.1 Zweck
+### 1.1 Purpose
 
-Der Zweck des Modells ist es, die Ausbreitungsdynamik einer Infektionskrankheit in einer geschlossenen, aber demografisch dynamischen Population (basierend auf österreichischen Raten) zu untersuchen. Dabei wird analysiert, wie sich unterschiedliche Kontaktdichten (Szenario 1 vs. Szenario 2/3), die Anzahl der Erstinfizierten sowie die Möglichkeit einer Reinfektion mit anschließender dauerhafter Immunität auf den Verlauf der Epidemie auswirken.
+The purpose of the model is to investigate the spread dynamics of an infectious disease in a closed but demographically dynamic population (based on Austrian rates). The analysis examines how different contact densities (Scenario 1 vs. Scenario 2/3), the number of initially infected people, and the possibility of reinfection with subsequent permanent immunity affect the course of the epidemic.
 
-### 1.2 Entitäten, Zustandsvariablen und Skalen
+### 1.2 Entities, State Variables and Scales
 
-Entitäten (Agenten): Personen der Population.
-Zustandsvariablen der Agenten:
-`status`: Aktueller Zustand 
-S = Anfällig
-I = Infiziert
-R = Temporär Genesen
-M = Dauerhaft Immun
-`infektions_counter`: Anzahl, wie oft der Agent bereits infiziert wurde (Ganzzahl größer/gleich 0).
-`tage_seit_genesung`: Zeitschritte, die seit dem Wechsel in den Zustand "R" vergangen sind.
-`max_verbindungen`: Individuelle maximale Anzahl täglicher Kontakte (netzwerkspezifisch).
-
-
-Globale Variablen:
- `ANZAHL_PERSONEN` (N)
- `ANSTECKUNGSRATE` (beta)
- `GENESUNGSRATE` (gamma)
- `IMMUNITAETS_DAUER`
- `GEBURTENRATE_TAG`
- `STERBERATE_TAG`
-Skalen: 
-Zeit: 1 Zeitschritt entspricht 1 Tag. Die Gesamtdauer beträgt 730 Zeitschritte.
-Raum: Nicht-räumlich (netzwerkbasiert / "Well-Mixed" innerhalb der Verbindungspunkte).
+Entities (Agents): People in the population.
+Agent state variables:
+`status`: Current state
+S = Susceptible
+I = Infected
+R = Temporarily Recovered
+M = Permanently Immune
+`infection_counter`: Number of times the agent has been infected (integer ≥ 0).
+`days_since_recovery`: Time steps elapsed since transitioning to "R" state.
+`max_contacts`: Individual maximum number of daily contacts (network-specific).
 
 
-
-### 1.3 Prozessübersicht und Terminierung
-
-Innerhalb jedes Zeitschritts (Tages) werden folgende Prozesse nacheinander für alle Agenten ausgeführt:
-
-1. Infektionsphase: Alle infizierten Agenten wählen zufällig Kontakte aus der Population (entsprechend ihrer `max_verbindungen`) und können diese mit der Wahrscheinlichkeit (beta) anstecken.
-
-2. Zustands-Update: Infizierte Agenten genesen mit der Wahrscheinlichkeit (gamma).
-
-Genesene Agenten (R) zählen ihre Immunitätstage hoch. Nach Ablauf von 30 Tagen werden sie wieder anfällig (S), es sei denn, es war ihre zweite Infektion – dann werden sie dauerhaft immun (M).
-
-3. Demografie (Mortalität): Jeder Agent kann mit der Wahrscheinlichkeit `STERBERATE_TAG` sterben und wird aus der Simulation gelöscht.
-4. Demografie (Natalität): Basierend auf der aktuellen Populationsgröße und der `GEBURTENRATE_TAG` werden neue Agenten im Zustand (S) geboren.
+Global variables:
+ `POPULATION_SIZE` (N)
+ `INFECTION_RATE` (beta)
+ `RECOVERY_RATE` (gamma)
+ `IMMUNITY_DURATION`
+ `BIRTH_RATE_DAY`
+ `DEATH_RATE_DAY`
+Scales:
+Time: 1 time step = 1 day. Total duration = 730 time steps.
+Space: Non-spatial (network-based / "well-mixed" within contact points).
 
 
-5. Datenerfassung: Die Systemzustände werden für die Endauswertung aufgezeichnet.
+
+### 1.3 Process Overview and Termination
+
+Within each time step (day), the following processes are executed sequentially for all agents:
+
+1. Infection phase: All infected agents randomly select contacts from the population (according to their `max_contacts`) and can infect them with probability (beta).
+
+2. Status update: Infected agents recover with probability (gamma).
+
+Recovered agents (R) increment their immunity days. After 30 days elapse, they return to susceptible (S), unless it was their second infection – then they become permanently immune (M).
+
+3. Demography (Mortality): Each agent can die with probability `DEATH_RATE_DAY` and is removed from the simulation.
+4. Demography (Natality): Based on current population size and `BIRTH_RATE_DAY`, new agents are born in state (S).
+
+
+5. Data collection: System states are recorded for final evaluation.
 
 ---
 
-## 2. Design Concepts (Entwurfskonzepte)
+## 2. Design Concepts
 
-Emergenz: Die Gesamtverlaufskurven (Wellenbewegungen, Herdenimmunität oder das Aussterben des Virus) entstehen dynamisch aus den individuellen, stochastischen Interaktionen der einzelnen Agenten.
-Anpassung / Ziele: Keine. Die Agenten handeln rein regelbasiert und zeigen kein adaptives Verhalten (z.B. freiwillige Isolation bei Infektion).
-Wahrnehmung: Infizierte Agenten "sehen" die gesamte Population, um potenzielle Kontakte für ihre Verbindungspunkte auszuwählen.
-Interaktion: Direkte stochastische Interaktion zwischen infizierten Agenten und ihren zufällig ausgewählten Kontaktpartnern.
-Stochastik: Zufallsprozesse steuern die Kontaktwahl, den Erfolg einer Infektion, die Genesung sowie Geburten und Todesfälle. Dies spiegelt reale biologische und gesellschaftliche Unschärfen wider.
-Kollektiv: Die Agenten sind in den drei Szenarien durch ihre Kontaktstrukturen (homogen vs. heterogen) organisiert.
-Beobachtung: Am Ende jedes Zeitschritts werden die Summen aller Agenten pro Zustand (S, I, R, M) und die Gesamtbevölkerung (N) aggregiert und grafisch als Liniendiagramm ausgegeben.
+Emergence: Overall trajectory curves (wave movements, herd immunity, or virus extinction) emerge dynamically from individual stochastic interactions of agents.
+Adaptation / Objectives: None. Agents act purely rule-based and show no adaptive behavior (e.g., voluntary isolation upon infection).
+Sensing: Infected agents "see" the entire population to select potential contacts for their connection points.
+Interaction: Direct stochastic interaction between infected agents and their randomly selected contact partners.
+Stochasticity: Random processes control contact selection, infection success, recovery, births, and deaths. This reflects real biological and societal uncertainty.
+Collectives: Agents are organized in the three scenarios through their contact structures (homogeneous vs. heterogeneous).
+Observation: At the end of each time step, the sums of all agents per state (S, I, R, M) and total population (N) are aggregated and output graphically as a line plot.
 
 ---
 
 ## 3. Details
 
-### 3.1 Initialisierung
+### 3.1 Initialization
 
-Die Startpopulation wird mit (N = 300) Agenten instanziiert.
-Szenario 1: 5 Agenten starten im Zustand (I) (`infektions_counter = 1`), alle anderen in (S). Jeder Agent erhält fix `max_verbindungen = 4`.
-Szenario 2: 5 Agenten starten in (I), alle anderen in (S). Jeder Agent erhält zufällig gleichverteilt zwischen 1 und 4 `max_verbindungen`.
-Szenario 3: 1 Agent startet in (I), alle anderen in (S). Jeder Agent erhält zufällig gleichverteilt zwischen 1 und 4 `max_verbindungen`.
+The initial population is instantiated with (N = 300) agents.
+Scenario 1: 5 agents start in state (I) (`infection_counter = 1`), all others in (S). Each agent receives fixed `max_contacts = 4`.
+Scenario 2: 5 agents start in (I), all others in (S). Each agent receives randomly uniformly distributed between 1 and 4 `max_contacts`.
+Scenario 3: 1 agent starts in (I), all others in (S). Each agent receives randomly uniformly distributed between 1 and 4 `max_contacts`.
 
-### 3.2 Eingangsdaten
+### 3.2 Input Data
 
-Das Modell nutzt die demografischen Kennzahlen Österreichs (hochgerechnet/angepasst auf das Jahr 2026), umgerechnet von Jahres- auf Tageswerte:
+The model uses Austrian demographic figures (extrapolated/adjusted to 2026), converted from yearly to daily values:
 
-Geburtenrate: ca. 8,2 pro 1.000 Einwohner pro Jahr (8.2 / 1000 / 365) pro Tag.
-Sterberate: ca. 9,4 pro 1.000 Einwohner pro Jahr (9.4 / 1000 / 365) pro Tag.
+Birth rate: approx. 8.2 per 1,000 inhabitants per year (8.2 / 1000 / 365) per day.
+Death rate: approx. 9.4 per 1,000 inhabitants per year (9.4 / 1000 / 365) per day.
 
-### 3.3 Submodelle
+### 3.3 Submodels
 
-#### Infektions-Wahrscheinlichkeit
+#### Infection Probability
 
-Für jeden Kontakt eines Infizierten mit einem gesunden Agenten (S) gilt:
-
-
-Zufallszahl zwischen 0 und 1 < ANSTECKUNGSRATE (0.05) -> Infektion erfolgreich
-
-#### Genesungs-Wahrscheinlichkeit
-
-Für jeden Infizierten (I) gilt in jedem Zeitschritt:
+For each contact of an infected agent with a healthy agent (S):
 
 
-Zufallszahl zwischen 0 und 1 < GENESUNGSRATE (0.02) -> Wechsel zu (R)
+Random number between 0 and 1 < INFECTION_RATE (0.05) -> Infection successful
 
-#### Immunitäts-Ablauf und Reinfektion
+#### Recovery Probability
 
-Wenn ein Agent im Zustand (R) den Wert `tage_seit_genesung == 30` erreicht, greift folgende Logik:
+For each infected agent (I) in each time step:
 
 
-IF infektions_counter >= 2 -> Status = M (Dauerhaft Immun)
+Random number between 0 and 1 < RECOVERY_RATE (0.02) -> Transition to (R)
 
-ELSE -> Status = S (Wieder Anfällig)
+#### Immunity Expiration and Reinfection
+
+When an agent in state (R) reaches `days_since_recovery == 30`, the following logic applies:
+
+
+IF infection_counter >= 2 -> Status = M (Permanently Immune)
+
+ELSE -> Status = S (Susceptible again)
