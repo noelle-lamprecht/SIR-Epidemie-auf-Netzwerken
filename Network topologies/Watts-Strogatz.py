@@ -1,17 +1,17 @@
 import matplotlib.pyplot as plt
 import networkx as nx
 
-# Parameter: 50 Personen, jeder startet mit 4 festen Nachbarn, 10% Neuverdrahtung
+# Parameters: 50 people, each starts with 4 fixed neighbors, 10% rewiring
 N = 50
 K = 4
 P_REWIRE = 0.10
 
-# Netzwerk generieren
+# Generate the network
 ws_graph = nx.watts_strogatz_graph(n=N, k=K, p=P_REWIRE, seed=42)
 
-# Zeichnen (im Kreis-Layout, um den ursprünglichen Ring und die Abkürzungen zu sehen)
+# Draw the graph in a circular layout to show the original ring and shortcuts
 plt.figure(figsize=(6, 6))
 pos = nx.circular_layout(ws_graph)
 nx.draw_networkx(ws_graph, pos, node_size=150, node_color="lightgreen", with_labels=False)
-plt.title(f"Watts-Strogatz Small-World (N={N}, k={K}, p_rewire={P_REWIRE})")
+plt.title(f"Watts-Strogatz small-world graph (N={N}, k={K}, p_rewire={P_REWIRE})")
 plt.show()
