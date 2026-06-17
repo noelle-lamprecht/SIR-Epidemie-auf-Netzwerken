@@ -1,3 +1,5 @@
+# Example of a Watts-Strogatz random graph
+
 import matplotlib.pyplot as plt
 import networkx as nx
 

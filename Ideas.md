@@ -1,12 +1,17 @@
-## Parameter verstellen
+# --- Ideas ---
 
-Was passiert wenn wir eine Sterberate/Geburtenrate hinzufügen? Erledigt 
-Was passiert wenn Genesene wieder ansteckbar sind? Erledigt
-Was passiert wenn jeder unterschiedlich viele Kontakte hat ?  Erledigt
-Der Einfluss von Herdenimmunität vs. Impfmüdigkeit
-Super-Spreader gezielt isolieren (Gezielter Lockdown)
-Mutationen und evolutionärer Wettlauf
- Saisonale Effekte (Winter- vs. Sommer-Wellen) . 
- Gleichgewicht in Kürzesterzeit?(?
- Krankheits-Sackgassen durch „Community Clustering“
- Medikamenten-Knappheit und überlastetes Gesundheitssystem (Triage))
+# What happens if we factor in mortality and birth rates?
+Done 
+# What happens if recovered individuals become infectious again? 
+Done
+# What happens if everyone has a different number of contacts? 
+Done
+# Seasonal effects (winter and summer waves)?
+Done
+
+# Interesting follow-up questions for own interest
+The impact of herd immunity vs. vaccine hesitancy?
+Targeted isolation of super-spreaders?
+Mutations and the evolutionary race?
+Equilibrium in the shortest possible time?
+Drug shortages and an overburdened healthcare system
