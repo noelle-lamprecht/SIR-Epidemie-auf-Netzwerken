@@ -52,17 +52,15 @@ for i in range(INITIAL_INFECTED):
     population[i].status = "I"
     population[i].infection_counter = 1
 
-# =========================================================================
-# === BARABÁSI-ALBERT NETWORK INITIALIZATION ===
-# We create the starting graph and link the agents initially.
-# =========================================================================
+
+# --- BARABÁSI-ALBERT NETWORK INITIALIZATION ---
+
 ba_graph = nx.barabasi_albert_graph(n=POPULATION_SIZE, m=M_EDGES, seed=42)
 
 for edge in ba_graph.edges():
     p1_id, p2_id = edge
     population[p1_id].contacts.append(population[p2_id])
     population[p2_id].contacts.append(population[p1_id])
-# =========================================================================
 
 # Statistic lists for plotting
 stats_S, stats_I, stats_R, stats_M, stats_total = [], [], [], [], []
@@ -97,7 +95,7 @@ for t in range(TIME_STEPS):
         current_infection_rate = 0.03  # Warm season 
         current_recovery_rate = 0.04   # Faster recovery in summer
         
-    # Save season change days for visual lines in later graph
+    # Saving season change days for visual lines in graph
     if t % 182 == 0 and t > 0:
         seasons_change.append(t)
 
