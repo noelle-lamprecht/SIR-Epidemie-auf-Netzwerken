@@ -14,4 +14,4 @@ The impact of herd immunity vs. vaccine hesitancy?
 Targeted isolation of super-spreaders?
 Mutations and the evolutionary race?
 Equilibrium in the shortest possible time?
-Drug shortages and an overburdened healthcare system
+Drug shortages and an overburdened healthcare system?
