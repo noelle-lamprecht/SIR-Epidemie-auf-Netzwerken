@@ -4,9 +4,6 @@
  # I = Infected: The person carries a virus and is contagious to susceptible people.
  # R = Recovered: The person has overcome the disease and is (for now) immune.
 
-# Which research questions do we want to answer?
-# How does the gradual integration of realistic network topology,
-#   demographic dynamics, and seasonal environmental influences affect the course of an epidemic in an agent-based SIR model?
 
 import random
 import matplotlib.pyplot as plt

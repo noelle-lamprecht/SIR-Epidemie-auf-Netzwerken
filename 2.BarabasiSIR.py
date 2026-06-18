@@ -1,7 +1,7 @@
 #SIR: each agent had only a number (max_contacts) that determined
     # how many random contacts they drew per day from a pool.
 #BARABASI: each agent has a unique id and an empty list self.contacts.
-    #In the list we permanently store who the "friends" or contacts of this person are in the network.
+    #The list permanently stores who the contacts of this person are.
 
 import random
 import matplotlib.pyplot as plt
