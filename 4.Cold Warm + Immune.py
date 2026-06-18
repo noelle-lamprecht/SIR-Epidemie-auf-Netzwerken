@@ -6,6 +6,7 @@ import matplotlib.animation as animation
 from matplotlib.patches import Patch
 import networkx as nx  # IMPORTANT 
 import numpy as np
+import random
 
 # --- CONFIGURATION ---
 SCENARIO = 1
