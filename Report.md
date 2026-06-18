@@ -45,7 +45,7 @@ Für die technische Implementierung in Python wurden folgende Kernbibliotheken v
 
 - `random`: Zur stochastischen Modellierung von Infektionswahrscheinlichkeiten, Genesen und zufälligen Stichprobenziehungen. 
 
-- `matplotlib.pyplot` & `matplotlib.animation`: Zur visuellen Aufbereitung der zeitlichen Verläufe sowie zur Erstellung dynamischer Netzwerkanimationen. 
+- `matplotlib.pyplot` & `matplotlib.animation` & `matplotlib.patches` : Zur visuellen Aufbereitung der zeitlichen Verläufe sowie zur Erstellung dynamischer Netzwerkanimationen. 
 
 - `networkx`: Zur Generierung und manipulation des Barabási-Albert-Graphen sowie zur Berechnung topologischer Eigenschaften (z.B. Knotengradverteilung). 
 
