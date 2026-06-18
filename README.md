@@ -1,4 +1,4 @@
-# SIR Epidemics on Networks
+# SIR Epidemics on Networks  
 #Made with Copilot
 This repository contains Python simulations of epidemic dynamics on networks using SIRS and SIRS models with seasonal effects, demographics, and Barabási-Albert network structure.
 
