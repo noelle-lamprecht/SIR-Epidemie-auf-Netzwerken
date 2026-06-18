@@ -1,4 +1,4 @@
-# Eine agentenbasierte Analyse des SIRS-Modells unter Einfluss von Netzwerktopologien, Demografie und Saisonalität 
+# Eine agentenbasierte Analyse des SIRS-Modells unter Einfluss von Netzwerktopologien, Demografie und Saisonalität  
 
  
 ## Abstract 
