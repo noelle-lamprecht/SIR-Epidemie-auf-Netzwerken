@@ -61,10 +61,11 @@ Im ersten Modellschritt wählen infizierte Agenten in jedem Schritt eine vollkom
 
 # 1. Make contacts and transmit infections 
 
+```phython 
+
 infected = [p for p in population if p.status == "I"] 
 
   
-
 for inf in infected: 
 
     contacts = random.sample(population, min(inf.max_contacts, len(population))) 
@@ -76,8 +77,7 @@ for inf in infected:
             if random.random() < INFECTION_RATE: 
 
                 contact.status = "I" 
-
-  
+```
 
 Erklärung: Für jeden Infizierten wird mittels random.sample eine Menge an Kontakten gezogen, die durch das individuelle Limit max_contacts begrenzt ist. Trifft ein infektiöser Agent auf einen Agenten im Zustand S, erfolgt die Transmission stochastisch mit der Wahrscheinlichkeit INFECTION_RATE (5%). Diese Modellannahme geht von festen sozialen Strukturen aus. 
 
@@ -86,7 +86,7 @@ Erklärung: Für jeden Infizierten wird mittels random.sample eine Menge an Kont
 Um reale soziale Netzwerke ("Scale-Free Networks") abzubilden, wurde das Kontaktsystem auf einen Graphen umgestellt, der nach dem Prinzip des bevorzugten Aufbaus (Preferential Attachment) generiert wird. Reiche Knoten (Hubs) werden dabei tendenziell noch reicher. 
 
 # Transfer the graph connections into our person objects 
-
+```python
 ba_graph = nx.barabasi_albert_graph(n=POPULATION_SIZE, m=M_EDGES, seed=42) 
 
 
@@ -97,6 +97,7 @@ for edge in ba_graph.edges():
     population[p1_id].contacts.append(population[p2_id]) 
 
     population[p2_id].contacts.append(population[p1_id]) 
+```
 
   
 Erklärung: Das Interaktionsnetzwerk wird über networkx initialisiert. Jeder neue Knoten verbindet sich bei der Entstehung mit m=2 bestehenden Knoten. Die Kanten werden anschließend als permanente Objektreferenzen in die Liste contacts des Agenten gespiegelt. Ein Infizierter kann nun ausschließlich Kontakte zu seinen direkten Netzwerknachbarn aufbauen, was die Infektionsketten lokalisiert. 
@@ -107,7 +108,7 @@ Erklärung: Das Interaktionsnetzwerk wird über networkx initialisiert. Jeder ne
 In der dritten Stufe verlässt das Modell die Annahme einer konstanten Populationsgröße. Es werden tägliche Geburts- und Sterberaten auf Basis realer österreichischer Demografiedaten implementiert. Neugeborene müssen mathematisch korrekt in das bestehende Barabási-Netzwerk integriert werden. 
 
 # Birth-Logic: A new baby enters the Barabási network 
-
+```python
 for _ in range(birth_count): 
 
     positions[next_id] = tuple(random_state.rand(2)) 
@@ -135,8 +136,7 @@ for _ in range(birth_count):
                 node_list, size=M_EDGES, replace=False, p=probabilities 
 
             ) 
-
-  
+```
 
 Erklärung: Stirbt ein Agent, wird sein Knoten gelöscht und alle Referenzen in den Nachbarlisten entfernt. Wird ein Agent geboren (status="S"), berechnet das System die Knotengrade (degrees) aller lebenden Netzwerkteilnehmer. Die Wahrscheinlichkeit einer Kopplung ist proportional zum aktuellen Grad des Knotens. Die Auswahl erfolgt stochastisch ohne Zurücklegen via np.random.choice. Zudem wurde eine funktionale Erweiterung integriert: Nach der zweiten überstandenen Infektion (infection_counter >= 2) wechselt ein Agent permanent in den Zustand M (dauerhafte Immunität). 
 
@@ -144,7 +144,7 @@ Erklärung: Stirbt ein Agent, wird sein Knoten gelöscht und alle Referenzen in 
 Codebeispiel 4: Kalt-Warm-Wechsel 
 
 In der finalen Modellstufe wird der kontinuierliche Verlauf durch ein zweiphasiges, saisonales System ersetzt. Über einen Zeitraum von 2 Jahren (730 Zeitschritte) hinweg schalten die epidemiologischen Raten abrupt alle 182 Tage um. 
-
+```python
 --- SEASONAL RATES CHECK --- 
 
 t // 182 determines the phase. Even phases = Cold, Odd = Warm 
@@ -154,7 +154,7 @@ if (t // 182) % 2 == 0: current_infection_rate = 0.05 # Cold season current_reco
 Saving season change days for visual lines in graph 
 
 if t % 182 == 0 and t > 0: seasons_change.append(t) 
-
+```
 
 Erklärung: Mittels Ganzzahldivision (t // 182) wird das Jahr in zwei gleich lange Hälften geteilt. In der kalten Phase (Phasen 0 und 2) herrschen eine hohe Ansteckungsrate (0.05) und eine niedrige Genesungsrate (0.02). In der warmen Phase (Phase 1 und 3) sinkt die Ansteckungsrate auf 0.03, während sich die Genesungsrate auf 0.04 verdoppelt (Simulation eines gestärkten Immunsystems im Sommer). Die Übergangstage werden im Array seasons_change für die spätere Visualisierung festgehalten. 
 
