@@ -13,7 +13,8 @@ import matplotlib.pyplot as plt
 
 # --- CONFIGURATION ---
 SCENARIO = 1
-TIME_STEPS = 200
+YEARS = 2
+TIME_STEPS = YEARS * 365
 POPULATION_SIZE = 300
 
 INFECTION_RATE = 0.05
