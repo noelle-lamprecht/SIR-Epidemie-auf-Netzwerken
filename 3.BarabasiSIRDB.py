@@ -11,7 +11,7 @@ from matplotlib.patches import Patch
 import networkx as nx  # IMPORTANT 
 import numpy as np
 
-# --- CONFIGURATION ---
+# --- CONFIGURATION --- 
 SCENARIO = 1
 YEARS = 2
 TIME_STEPS = 365 * YEARS  # 730 days (2 years)
