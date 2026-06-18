@@ -58,9 +58,6 @@ Für die technische Implementierung in Python wurden folgende Kernbibliotheken v
 
 Im ersten Modellschritt wählen infizierte Agenten in jedem Schritt eine vollkommen zufällige Teilmenge aus der Gesamtbevölkerung aus. Dies simuliert eine homogene Masseninteraktion (z.B. öffentlicher Nahverkehr oder Großveranstaltungen). 
 
-  
-
-python 
 
 # 1. Make contacts and transmit infections 
 
@@ -218,13 +215,10 @@ Geringe Populationsgröße: Mit N=300 Individuen ist das System anfällig für s
 
 Um die Belastbarkeit des Modells zu erhöhen, sollte ein dynamisches Netzwerk implementiert werden, bei dem ungesunde Agenten (I) isoliert werden und ihre Kanten temporär getrennt werden (Adaptive Rewiring). Zudem könnte die Einbindung von geografischen Koordinaten (Continuous Space oder Grid) anstelle rein abstrakter Netzwerkkanten die Modellierung von lokalen Quarantänemaßnahmen ermöglichen. 
 
-
 ### References 
 
 Kermack, W. O., & McKendrick, A. G. (1927). A contribution to the mathematical theory of epidemics.Proceedings of the Royal Society of London. Series A, 115(772), 700-721. (Grundlagen der kompartimentellen Modellierung). 
 
 Barabási, A. L., & Albert, R. (1999). Emergence of scaling in random networks. Science, 286(5439), 509-512. (Mathematische Herleitung der skalenfreien Netzwerktopologie). 
-
-Pastor-Satorras, R., & Vespignani, A. (2001). Epidemic spreading in scale-free networks. Physical Review Letters, 86(14), 3200. (Analyse von Infektionsprozessen auf komplexen Graphen). Weg???? 
 
 STATISTIK AUSTRIA. (2026). Geburtenbilanz 2025 zum 6. Mal in Folge negativ: 11 048 mehr Sterbefälle als Geborene 
